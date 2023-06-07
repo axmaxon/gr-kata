@@ -1,55 +1,74 @@
 class GildedRose
+  ITEM_HANDLERS = {
+    'Aged Brie' => :update_aged_brie,
+    'Backstage passes to a TAFKAL80ETC concert' => :update_backstage_pass,
+    'Sulfuras, Hand of Ragnaros' => :update_sulfuras
+  }
 
   def initialize(items)
     @items = items
   end
 
-  def update_quality()
+  def update_quality
     @items.each do |item|
-      if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert"
-        if item.quality > 0
-          if item.name != "Sulfuras, Hand of Ragnaros"
-            item.quality = item.quality - 1
-          end
-        end
-      else
-        if item.quality < 50
-          item.quality = item.quality + 1
-          if item.name == "Backstage passes to a TAFKAL80ETC concert"
-            if item.sell_in < 11
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-            if item.sell_in < 6
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-          end
-        end
-      end
-      if item.name != "Sulfuras, Hand of Ragnaros"
-        item.sell_in = item.sell_in - 1
-      end
-      if item.sell_in < 0
-        if item.name != "Aged Brie"
-          if item.name != "Backstage passes to a TAFKAL80ETC concert"
-            if item.quality > 0
-              if item.name != "Sulfuras, Hand of Ragnaros"
-                item.quality = item.quality - 1
-              end
-            end
-          else
-            item.quality = item.quality - item.quality
-          end
-        else
-          if item.quality < 50
-            item.quality = item.quality + 1
-          end
-        end
+      item_handler = ITEM_HANDLERS[item.name] || :update_regular_item
+      send(item_handler, item)
+    end
+  end
+
+  private
+
+  def update_regular_item(item)
+    if item.quality > 0
+      item.sell_in > 0 ? decrease_quality(item, 1) : decrease_quality(item, 2)
+    end
+
+    decrease_sell_in(item)
+  end
+
+  def update_aged_brie(item)
+    if item.quality < 50
+      item.sell_in > 0 ? increase_quality(item, 1) : increase_quality(item, 2)
+    end
+
+    decrease_sell_in(item)
+  end
+
+  def update_backstage_pass(item)
+    if item.quality < 50
+      case item.sell_in
+      when (11..)
+        increase_quality(item, 1)
+      when (6..10)
+        increase_quality(item, 2)
+      when (1..5)
+        increase_quality(item, 3)
       end
     end
+
+    item.quality = 0 if (..0).include?(item.sell_in)
+
+    decrease_sell_in(item)
+  end
+
+  def update_sulfuras(_)
+    # Товар имеет неизменяемые свойства
+  end
+
+  def increase_quality(item, value)
+    value.times do
+      item.quality += 1 if item.quality < 50
+    end
+  end
+
+  def decrease_quality(item, value)
+    value.times do
+      item.quality -= 1 if item.quality > 0
+    end
+  end
+
+  def decrease_sell_in(item)
+    item.sell_in -= 1
   end
 end
 
