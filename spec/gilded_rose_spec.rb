@@ -12,9 +12,12 @@ RSpec.describe GildedRose do
       let(:regular_item_1) { Item.new('Regular Item', 2, 25) }
       let(:regular_item_2) { Item.new('Regular Item', 0, 25) }
       let(:regular_item_3) { Item.new('Regular Item', -1, 25) }
+      let(:regular_item_4) { Item.new('Regular Item', 2, 0) }
+      let(:regular_item_5) { Item.new('Regular Item', -1, 1) }
 
       before do
-        gilded_rose = GildedRose.new([regular_item_1, regular_item_2, regular_item_3])
+        gilded_rose = GildedRose.new([regular_item_1, regular_item_2, regular_item_3,
+                                      regular_item_4, regular_item_5])
         gilded_rose.update_quality
       end
 
@@ -28,6 +31,18 @@ RSpec.describe GildedRose do
         it 'decreases sell_in by 1 and decreases quality by 2' do
           expect(regular_item_2).to have_attributes(name: 'Regular Item', sell_in: -1, quality: 23)
           expect(regular_item_3).to have_attributes(name: 'Regular Item', sell_in: -2, quality: 23)
+        end
+
+        context 'when minimum quality is reached' do
+          it 'decreases sell_in by 1 and does not decrease quality below 0' do
+            expect(regular_item_5).to have_attributes(name: 'Regular Item', sell_in: -2, quality: 0)
+          end
+        end
+      end
+
+      context 'when quality is 0' do
+        it 'decreases sell_in and not change quality' do
+          expect(regular_item_4).to have_attributes(name: 'Regular Item', sell_in: 1, quality: 0)
         end
       end
     end
@@ -71,10 +86,13 @@ RSpec.describe GildedRose do
       let(:backstage_passes_5) { Item.new('Backstage passes to a TAFKAL80ETC concert', 1, 25) }
       let(:backstage_passes_6) { Item.new('Backstage passes to a TAFKAL80ETC concert', 0, 25) }
       let(:backstage_passes_7) { Item.new('Backstage passes to a TAFKAL80ETC concert', -1, 25) }
+      let(:backstage_passes_8) { Item.new('Backstage passes to a TAFKAL80ETC concert', 7, 49) }
+      let(:backstage_passes_9) { Item.new('Backstage passes to a TAFKAL80ETC concert', 2, 48) }
 
       before do
         gilded_rose = GildedRose.new([backstage_passes_1, backstage_passes_2, backstage_passes_3,
-                                      backstage_passes_4, backstage_passes_5, backstage_passes_6, backstage_passes_7])
+                                      backstage_passes_4, backstage_passes_5, backstage_passes_6,
+                                      backstage_passes_7, backstage_passes_8, backstage_passes_9])
         gilded_rose.update_quality
       end
 
@@ -89,12 +107,23 @@ RSpec.describe GildedRose do
           expect(backstage_passes_2).to have_attributes(name: 'Backstage passes to a TAFKAL80ETC concert', sell_in: 9, quality: 27)
           expect(backstage_passes_3).to have_attributes(name: 'Backstage passes to a TAFKAL80ETC concert', sell_in: 5, quality: 27)
         end
+
+        context 'when maximum quality is reached' do
+          it 'does not increase quality beyond 50' do
+            expect(backstage_passes_8).to have_attributes(name: 'Backstage passes to a TAFKAL80ETC concert', sell_in: 6, quality: 50)
+          end
+        end
       end
 
       context 'when sell_in in the range 5..1' do
         it 'decreases sell_in by 1 and increases quality by 3' do
           expect(backstage_passes_4).to have_attributes(name: 'Backstage passes to a TAFKAL80ETC concert', sell_in: 4, quality: 28)
           expect(backstage_passes_5).to have_attributes(name: 'Backstage passes to a TAFKAL80ETC concert', sell_in: 0, quality: 28)
+        end
+        context 'when maximum quality is reached' do
+          it 'does not increase quality beyond 50' do
+            expect(backstage_passes_9).to have_attributes(name: 'Backstage passes to a TAFKAL80ETC concert', sell_in: 1, quality: 50)
+          end
         end
       end
 
