@@ -153,5 +153,44 @@ RSpec.describe GildedRose do
         end
       end
     end
+
+    context 'when the item is Conjured' do
+      let(:conjured_1) { Item.new('Conjured Mana Cake', 2, 25) }
+      let(:conjured_2) { Item.new('Conjured Mana Cake', 0, 25) }
+      let(:conjured_3) { Item.new('Conjured Mana Cake', -1, 25) }
+      let(:conjured_4) { Item.new('Conjured Mana Cake', 0, 3) }
+      let(:conjured_5) { Item.new('Conjured Mana Cake', 2, 0) }
+
+      before do
+        gilded_rose = GildedRose.new([conjured_1, conjured_2, conjured_3,
+                                      conjured_4, conjured_5])
+        gilded_rose.update_quality
+      end
+
+      context 'when sell_in is greater than 0' do
+        it 'decreases sell_in by 1 and decreases quality by 2' do
+          expect(conjured_1).to have_attributes(name: 'Conjured Mana Cake', sell_in: 1, quality: 23)
+        end
+      end
+
+      context 'when sell_in is 0 or less' do
+        it 'decreases sell_in by 1 and decreases quality by 4' do
+          expect(conjured_2).to have_attributes(name: 'Conjured Mana Cake', sell_in: -1, quality: 21)
+          expect(conjured_3).to have_attributes(name: 'Conjured Mana Cake', sell_in: -2, quality: 21)
+        end
+
+        context 'when minimum quality is reached' do
+          it 'decreases sell_in by 1 and does not decrease quality below 0' do
+            expect(conjured_4).to have_attributes(name: 'Conjured Mana Cake', sell_in: -1, quality: 0)
+          end
+        end
+      end
+
+      context 'when quality is 0' do
+        it 'decreases sell_in and not change quality' do
+          expect(conjured_5).to have_attributes(name: 'Conjured Mana Cake', sell_in: 1, quality: 0)
+        end
+      end
+    end
   end
 end
