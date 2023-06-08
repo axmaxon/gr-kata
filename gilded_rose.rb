@@ -2,7 +2,8 @@ class GildedRose
   ITEM_HANDLERS = {
     'Aged Brie' => :update_aged_brie,
     'Backstage passes to a TAFKAL80ETC concert' => :update_backstage_pass,
-    'Sulfuras, Hand of Ragnaros' => :update_sulfuras
+    'Sulfuras, Hand of Ragnaros' => :update_sulfuras,
+    'Conjured Mana Cake' => :update_conjured
   }
 
   def initialize(items)
@@ -53,6 +54,14 @@ class GildedRose
 
   def update_sulfuras(_)
     # Товар имеет неизменяемые свойства
+  end
+
+  def update_conjured(item)
+    if item.quality > 0
+      item.sell_in > 0 ? decrease_quality(item, 2) : decrease_quality(item, 4)
+    end
+
+    decrease_sell_in(item)
   end
 
   def increase_quality(item, value)
