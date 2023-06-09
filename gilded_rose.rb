@@ -47,7 +47,7 @@ class GildedRose
       end
     end
 
-    item.quality = 0 if (..0).include?(item.sell_in)
+    item.quality = 0 if item.sell_in <= 0
 
     decrease_sell_in(item)
   end
@@ -90,7 +90,7 @@ class Item
     @quality = quality
   end
 
-  def to_s()
+  def to_s
     "#{@name}, #{@sell_in}, #{@quality}"
   end
 end

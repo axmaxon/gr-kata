@@ -26,6 +26,7 @@ gilded_rose = GildedRose.new items
   items.each do |item|
     puts item
   end
-  puts ""
+
+  puts
   gilded_rose.update_quality
 end
